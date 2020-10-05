@@ -1,7 +1,7 @@
 # Crypto
 
 ## Projekt inicializálása
-##### Szükséges hozzá Node.js és npm
+##### Szükséges hozzá Node.js
 
 ### 1. A server mappában npm install (ez feltelepíti a függőségeket)
 ### 2. Ezután a server mappában elindítjuk az Express servert -> node index.js
