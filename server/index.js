@@ -4,12 +4,23 @@ const http = require("http").createServer(app);
 const fs = require('fs');
 const cors = require('cors');
 const SHA256 = require('crypto-js/sha256');
+const rs = require('jsrsasign');
+const rsu = require('jsrsasign-util');
 const { MerkleTree } = require('merkletreejs');
 
 app.use(cors());
 app.use(express.json());
 let merkleTree;
 let merkleRoot;
+
+const A_PRIVATE_KEY = rsu.readFile('./private_keys/A.key');
+const prvA = rs.KEYUTIL.getKey(A_PRIVATE_KEY);
+const A_PUBLIC_KEY = rsu.readFile('./public_keys/A.key.pub');
+const pubA = rs.KEYUTIL.getKey(A_PUBLIC_KEY);
+const B_PRIVATE_KEY = rsu.readFile('./private_keys/B.key');
+const prvB = rs.KEYUTIL.getKey(B_PRIVATE_KEY);
+const B_PUBLIC_KEY = rsu.readFile('./public_keys/B.key.pub');
+const pubB = rs.KEYUTIL.getKey(B_PUBLIC_KEY);
 
 function getHashWithZeros(block, minZeros = 5) {
   let hash;
@@ -22,6 +33,35 @@ function getHashWithZeros(block, minZeros = 5) {
   }
 
   return hash;
+}
+
+function signTx(block) {
+  let sig = new rs.KJUR.crypto.Signature({alg: 'SHA1withRSA'});
+
+  if (block.data.from === 'A') {
+    sig.init(prvA);
+  } else {
+    sig.init(prvB);
+  }
+
+  sig.updateString(block.data.from + block.data.to + block.data.amount);
+  let sigHex = sig.sign();
+  return sigHex;
+}
+
+function verifySign(block) {
+  let sigHex = block.sign;
+  let sig = new rs.KJUR.crypto.Signature({alg: 'SHA1withRSA'});
+  if (block.data.from === 'A') {
+    sig.init(pubA)
+  } else {
+    sig.init(pubB);
+  }
+
+  sig.updateString(block.data.from + block.data.to + block.data.amount);
+  let isValid = sig.verify(sigHex);
+
+  return isValid;
 }
 
 (() => {
@@ -98,6 +138,7 @@ app.post('/makeTransaction', (req, res) => {
     };
 
     newTx.hash = getHashWithZeros(newTx);
+    newTx.sign = signTx(newTx);
     jsonData.blocks.push(newTx);
 
     fs.writeFile('blockchain.json', JSON.stringify(jsonData), (err) => {
