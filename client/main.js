@@ -47,7 +47,7 @@ async function makeTransaction() {
   amount.value = '';
 
   resultText.innerHTML = 'Kérem várjon a tranzakció befejezéséig!';
-  
+
   const result = await fetch('http://127.0.0.1:3000/makeTransaction', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -79,9 +79,8 @@ function renderBlock(block) {
   } else {
     newBlock = `
     <div>
-      <p>From: ${block.data}</p>
-      <p>To: ${block.hash}</p>
-      <p>Preceding hash: ${block.precedingHash}</p>
+      <p>Data : ${block.data}</p>
+      <p>Hash: ${block.hash}</p>
       <br />
     </div>
   `;

@@ -1,3 +1,25 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    width: 80%;
+    margin: auto;
+    padding: 15px;
+}
+
+input {
+    display: block;
+    margin-bottom: 8px;
+    width: 50%;
+}
+
+button {
+    margin-right: 15px;
+}
+
 .result-text {
     color: red;
     font-size: 26px;

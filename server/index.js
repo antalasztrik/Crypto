@@ -13,8 +13,9 @@ let merkleRoot;
 
 function getHashWithZeros(block, minZeros = 5) {
   let hash;
-  for (let nonce = 0; true; nonce++) {
-    hash = SHA256(block.index + block.precedingHash + block.timestamp + JSON.stringify(block.data) + nonce).toString();
+  
+  for (let nonce = 1; true; nonce++) {
+    hash = SHA256(block.index + block.precedingHash + JSON.stringify(block.data) + nonce).toString();
 
     if (hash.substring(0, minZeros) === Array(minZeros + 1).join('0'))
       break;
@@ -55,10 +56,7 @@ function getHashWithZeros(block, minZeros = 5) {
     merkleTree = new MerkleTree(hashes, SHA256);
     merkleRoot = merkleTree.getRoot().toString('hex');
 
-    // checkTree('c39598dbed1a1d2cf912c62d037ea89c67728e3b0dc12bf3aa80ba9b62bd6d2c');
-    // checkTree('ac5eb7d2c7ef176eddbc84a7dffe6e61291bc6cc7a8c413a9fd5b21cd27040b2');
-    // checkTree('84629c255547ce43b73a0dc46d781c457b68e35327060121eb3a69355a113171');
-    // MerkleTree.print(merkleTree);
+    MerkleTree.print(merkleTree);
   })
 })()
 
@@ -113,12 +111,10 @@ app.post('/makeTransaction', (req, res) => {
   })
 })
 
-
-function checkTree(hash) {
+function verify(hash) {
   const proof = merkleTree.getProof(hash);
   console.log(merkleTree.verify(proof, hash, merkleRoot));
 }
-
 
 http.listen(3000, () => {
   console.log('Listening on: localhost:3000');
